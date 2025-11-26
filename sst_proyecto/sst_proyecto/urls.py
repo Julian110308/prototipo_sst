@@ -18,9 +18,46 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import views as auth_views
+
+# Vistas para usuarios autenticados (usan base.html)
+@login_required
+def dashboard_view(request):
+    return render(request, 'dashboard.html')
+
+@login_required
+def control_acceso_view(request):
+    return render(request, 'control_acceso.html')
+
+@login_required
+def mapas_view(request):
+    return render(request, 'mapas.html')
+
+@login_required
+def emergencias_view(request):
+    return render(request, 'emergencias.html')
+
+@login_required
+def reportes_view(request):
+    return render(request, 'reportes.html')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Login (usa login.html INDEPENDIENTE)
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
+    # Vistas principales
+    path('', dashboard_view, name='dashboard'),
+    path('acceso/', control_acceso_view, name='control_acceso'),
+    path('mapas/', mapas_view, name='mapas'),
+    path('emergencias/', emergencias_view, name='emergencias'),
+    path('reportes/', reportes_view, name='reportes'),
+    
+    # APIs
     path('api/auth/', include('usuarios.urls')),
     path('api/acceso/', include('control_acceso.urls')),
     path('api/mapas/', include('mapas.urls')),
@@ -28,7 +65,6 @@ urlpatterns = [
     path('api/reportes/', include('reportes.urls')),
 ]
 
-# Servir archivos media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -73,7 +73,7 @@ ROOT_URLCONF = 'sst_proyecto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -152,6 +152,9 @@ REST_FRAMEWORK = {
 }
 
 # Configuracion de archivos estaticos
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # IMPORTANTE!
+]
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
