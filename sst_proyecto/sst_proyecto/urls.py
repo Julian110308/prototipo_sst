@@ -21,6 +21,9 @@ from django.conf.urls.static import static
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
+from django.urls import path, include
+from django.views.generic import TemplateView   # 👉 AGREGADO
+
 
 # Vistas para usuarios autenticados (usan base.html)
 @login_required
@@ -43,15 +46,21 @@ def emergencias_view(request):
 def reportes_view(request):
     return render(request, 'reportes.html')
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Login (usa login.html INDEPENDIENTE)
+    # Login
     path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    
-    # Vistas principales
-    path('', dashboard_view, name='dashboard'),
+
+    # 👉👉 NUEVO: página inicial será el registro (register.html)
+    path('', TemplateView.as_view(template_name="registro.html"), name='registro'),
+
+    # 👉 Dashboard ahora tiene su propia URL
+    path('dashboard/', dashboard_view, name='dashboard'),
+
+    # Módulos
     path('acceso/', control_acceso_view, name='control_acceso'),
     path('mapas/', mapas_view, name='mapas'),
     path('emergencias/', emergencias_view, name='emergencias'),

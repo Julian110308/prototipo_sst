@@ -11,11 +11,15 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
+    # Permisos según acción
     def get_permissions(self):
-        if self.action in ['login', 'create']:
+        if self.action in ['login', 'create', 'register']:
             return [AllowAny()]
         return [IsAuthenticated()]
     
+    # ---------------------------
+    #      LOGIN DE USUARIO
+    # ---------------------------
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
         serializer = LoginSerializer(data=request.data, context={'request': request})
@@ -23,6 +27,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
         usuario = serializer.validated_data['usuario']
         login(request, usuario)
+
         token, created = Token.objects.get_or_create(user=usuario)
 
         return Response({
@@ -30,21 +35,49 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             'usuario': UsuarioSerializer(usuario).data,
             'mensaje': 'Login exitoso.'
         })
-    
+
+    # ---------------------------
+    #      LOGOUT DE USUARIO
+    # ---------------------------
     @action(detail=False, methods=['post'])
     def logout(self, request):
         try:
             request.user.auth_token.delete()
         except:
             pass
+
         logout(request)
         return Response({'mensaje': 'Logout exitoso.'})
-    
+
+    # ---------------------------
+    #        PERFIL
+    # ---------------------------
     @action(detail=False, methods=['get'])
     def perfil(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
-    
+
+    # ---------------------------
+    #      REGISTRO DE USUARIOS
+    # ---------------------------
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        usuario = serializer.save()
+        token, created = Token.objects.get_or_create(user=usuario)
+
+        return Response({
+            'mensaje': 'Usuario registrado exitosamente.',
+            'usuario': UsuarioSerializer(usuario).data,
+            'token': token.key
+        }, status=status.HTTP_201_CREATED)
+
+
+# =====================================================
+#              VISITANTES
+# =====================================================
 class VisitanteViewSet(viewsets.ModelViewSet):
     queryset = Visitante.objects.all()
     serializer_class = VisitanteSerializer

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 30px;
+        }
+
+        .container {
+            width: 400px;
+            margin: auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #39A900; /* Verde del SENA */
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #cccccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #39A900; /* Verde SENA */
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2e8700;
+        }
+
+        .mensaje {
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .ok {
+            background: #c4f5c4;
+            color: #0f6d00;
+        }
+
+        .error {
+            background: #ffd1d1;
+            color: #b40000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Registro de Usuario</h2>
+
+        <form id="formRegistro">
+
+            <label>Nombre:</label>
+            <input type="text" id="nombre" required>
+
+            <label>Apellido:</label>
+            <input type="text" id="apellido" required>
+
+            <label>Correo:</label>
+            <input type="email" id="correo" required>
+
+            <label>Contraseña:</label>
+            <input type="password" id="password" required>
+
+            <label>Tipo de documento:</label>
+            <select id="tipo_documento" required>
+                <option value="">Seleccione...</option>
+                <option value="CC">Cédula</option>
+                <option value="TI">Tarjeta de Identidad</option>
+                <option value="CE">Cédula de Extranjería</option>
+            </select>
+
+            <label>Número de documento:</label>
+            <input type="text" id="numero_documento" required>
+
+            <button type="submit">Registrarse</button>
+        </form>
+
+        <div id="mensaje"></div>
+    </div>
+
+
+<script>
+document.getElementById("formRegistro").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const datos = {
+        nombre: document.getElementById("nombre").value,
+        apellido: document.getElementById("apellido").value,
+        correo: document.getElementById("correo").value,
+        password: document.getElementById("password").value,
+        tipo_documento: document.getElementById("tipo_documento").value,
+        numero_documento: document.getElementById("numero_documento").value
+    };
+
+    try {
+        const response = await fetch("/api/usuarios/register/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await response.json();
+        const mensaje = document.getElementById("mensaje");
+
+        if (response.ok) {
+            mensaje.className = "mensaje ok";
+            mensaje.innerHTML = "✅ Usuario registrado correctamente";
+
+            // limpiar formulario
+            document.getElementById("formRegistro").reset();
+        } else {
+            mensaje.className = "mensaje error";
+            mensaje.innerHTML = "❌ Error: " + (data.mensaje || JSON.stringify(data));
+        }
+
+    } catch (error) {
+        document.getElementById("mensaje").className = "mensaje error";
+        document.getElementById("mensaje").innerHTML = "❌ Error de conexión con el servidor.";
+    }
+});
+</script>
+
+</body>
+</html>
