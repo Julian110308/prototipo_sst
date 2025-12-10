@@ -4,8 +4,12 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Usuario, Visitante
 from .serializers import UsuarioSerializer, LoginSerializer, VisitanteSerializer
+from .forms import RegistroForm
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -85,3 +89,22 @@ class VisitanteViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(registrado_por=self.request.user)
+
+
+# =====================================================
+#              VISTAS WEB
+# =====================================================
+def registro_view(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            usuario = form.save()
+            messages.success(request, 'Usuario registrado exitosamente. Ahora puedes iniciar sesión.')
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    return render(request, 'registro.html', {'form': form})
+
+@login_required
+def perfil_view(request):
+    return render(request, 'perfil.html', {'usuario': request.user})

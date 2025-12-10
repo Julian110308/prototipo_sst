@@ -23,6 +23,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.views.generic import TemplateView   # 👉 AGREGADO
+from usuarios.views import registro_view, perfil_view
 
 
 # Vistas para usuarios autenticados (usan base.html)
@@ -53,9 +54,10 @@ urlpatterns = [
     # Login
     path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/profile/', perfil_view, name='profile'),
 
-    # 👉👉 NUEVO: página inicial será el registro (register.html)
-    path('', TemplateView.as_view(template_name="registro.html"), name='registro'),
+    # 👉👉 NUEVO: página inicial será el registro (registro.html)
+    path('', registro_view, name='registro'),
 
     # 👉 Dashboard ahora tiene su propia URL
     path('dashboard/', dashboard_view, name='dashboard'),
@@ -66,7 +68,7 @@ urlpatterns = [
     path('emergencias/', emergencias_view, name='emergencias'),
     path('reportes/', reportes_view, name='reportes'),
     
-    # APIs
+    # APIa lo 
     path('api/auth/', include('usuarios.urls')),
     path('api/acceso/', include('control_acceso.urls')),
     path('api/mapas/', include('mapas.urls')),

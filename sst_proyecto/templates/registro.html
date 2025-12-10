@@ -1,158 +1,190 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>Registro de Usuario - SENA</title>
+es q    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            padding: 30px;
+            background: linear-gradient(135deg, #1a4d2e, #0d3b1e);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
-        .container {
-            width: 400px;
-            margin: auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        .register-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
 
-        h2 {
-            text-align: center;
-            color: #39A900; /* Verde del SENA */
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #cccccc;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #39A900; /* Verde SENA */
+        .register-header {
+            background: linear-gradient(135deg, #1a4d2e, #2e7d32);
             color: white;
-            border: none;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2e8700;
-        }
-
-        .mensaje {
-            margin-top: 15px;
-            padding: 10px;
+            padding: 2rem;
             text-align: center;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 15px 15px 0 0;
         }
 
-        .ok {
-            background: #c4f5c4;
-            color: #0f6d00;
+        .register-body {
+            padding: 2.5rem;
         }
 
-        .error {
-            background: #ffd1d1;
-            color: #b40000;
+        .btn-register {
+            background: linear-gradient(135deg, #1a4d2e, #2e7d32);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+
+        .form-control:focus {
+            border-color: #1a4d2e;
+            box-shadow: 0 0 0 0.2rem rgba(26, 77, 46, 0.25);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
         }
     </style>
 </head>
 
 <body>
-
     <div class="container">
-        <h2>Registro de Usuario</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="register-container">
+                    <div class="register-header">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-person-plus-fill fs-1 me-3"></i>
+                            <div class="text-start">
+                                <h2 class="fw-bold mb-0">Registro de Usuario</h2>
+                                <p class="mb-0 opacity-75">Sistema SST Centro Minero - Boyacá</p>
+                            </div>
+                        </div>
+                        <p class="mb-0 opacity-90">Completa tus datos para registrarte</p>
+                    </div>
 
-        <form id="formRegistro">
+                    <div class="register-body">
+                        {% if messages %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            {{ message }}
+                            {% endfor %}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
 
-            <label>Nombre:</label>
-            <input type="text" id="nombre" required>
+                        <form method="post">
+                            {% csrf_token %}
 
-            <label>Apellido:</label>
-            <input type="text" id="apellido" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person me-2"></i>Nombre
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger small">{{ form.first_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
 
-            <label>Correo:</label>
-            <input type="email" id="correo" required>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person me-2"></i>Apellido
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger small">{{ form.last_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-            <label>Contraseña:</label>
-            <input type="password" id="password" required>
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    <i class="bi bi-envelope me-2"></i>Correo Electrónico
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
 
-            <label>Tipo de documento:</label>
-            <select id="tipo_documento" required>
-                <option value="">Seleccione...</option>
-                <option value="CC">Cédula</option>
-                <option value="TI">Tarjeta de Identidad</option>
-                <option value="CE">Cédula de Extranjería</option>
-            </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                        <i class="bi bi-lock me-2"></i>Contraseña
+                                    </label>
+                                    {{ form.password1 }}
+                                    {% if form.password1.errors %}
+                                        <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
 
-            <label>Número de documento:</label>
-            <input type="text" id="numero_documento" required>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                        <i class="bi bi-lock-fill me-2"></i>Confirmar Contraseña
+                                    </label>
+                                    {{ form.password2 }}
+                                    {% if form.password2.errors %}
+                                        <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-            <button type="submit">Registrarse</button>
-        </form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.rol.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person-badge me-2"></i>Rol
+                                    </label>
+                                    {{ form.rol }}
+                                    {% if form.rol.errors %}
+                                        <div class="text-danger small">{{ form.rol.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
 
-        <div id="mensaje"></div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.tipo_documento.id_for_label }}" class="form-label">
+                                        <i class="bi bi-card-text me-2"></i>Tipo de Documento
+                                    </label>
+                                    {{ form.tipo_documento }}
+                                    {% if form.tipo_documento.errors %}
+                                        <div class="text-danger small">{{ form.tipo_documento.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="{{ form.numero_documento.id_for_label }}" class="form-label">
+                                    <i class="bi bi-credit-card me-2"></i>Número de Documento
+                                </label>
+                                {{ form.numero_documento }}
+                                {% if form.numero_documento.errors %}
+                                    <div class="text-danger small">{{ form.numero_documento.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-register text-white w-100 py-3 fw-bold mb-3">
+                                <i class="bi bi-person-plus me-2"></i>
+                                REGISTRARSE
+                            </button>
+                        </form>
+
+                        <div class="text-center">
+                            <p class="mb-0">¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-decoration-none fw-semibold">Inicia sesión aquí</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-
-<script>
-document.getElementById("formRegistro").addEventListener("submit", async function(e) {
-    e.preventDefault();
-
-    const datos = {
-        nombre: document.getElementById("nombre").value,
-        apellido: document.getElementById("apellido").value,
-        correo: document.getElementById("correo").value,
-        password: document.getElementById("password").value,
-        tipo_documento: document.getElementById("tipo_documento").value,
-        numero_documento: document.getElementById("numero_documento").value
-    };
-
-    try {
-        const response = await fetch("/api/usuarios/register/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(datos)
-        });
-
-        const data = await response.json();
-        const mensaje = document.getElementById("mensaje");
-
-        if (response.ok) {
-            mensaje.className = "mensaje ok";
-            mensaje.innerHTML = "✅ Usuario registrado correctamente";
-
-            // limpiar formulario
-            document.getElementById("formRegistro").reset();
-        } else {
-            mensaje.className = "mensaje error";
-            mensaje.innerHTML = "❌ Error: " + (data.mensaje || JSON.stringify(data));
-        }
-
-    } catch (error) {
-        document.getElementById("mensaje").className = "mensaje error";
-        document.getElementById("mensaje").innerHTML = "❌ Error de conexión con el servidor.";
-    }
-});
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
