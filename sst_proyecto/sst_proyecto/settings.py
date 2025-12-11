@@ -172,3 +172,6 @@ LEAFLET_CONFIG = {
 
 # Modelo de usuario
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+# Redirección después del login
+LOGIN_REDIRECT_URL = 'dashboard'

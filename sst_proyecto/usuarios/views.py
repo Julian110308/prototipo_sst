@@ -101,6 +101,8 @@ def registro_view(request):
             usuario = form.save()
             messages.success(request, 'Usuario registrado exitosamente. Ahora puedes iniciar sesión.')
             return redirect('login')
+        else:
+            messages.error(request, 'Hay errores en el formulario. Por favor, revisa los campos.')
     else:
         form = RegistroForm()
     return render(request, 'registro.html', {'form': form})

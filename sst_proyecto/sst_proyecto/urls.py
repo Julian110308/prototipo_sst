@@ -24,12 +24,73 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.views.generic import TemplateView   # 👉 AGREGADO
 from usuarios.views import registro_view, perfil_view
+from control_acceso.models import RegistroAcceso, ConfiguracionAforo
+from emergencias.models import Emergencia
+from django.utils import timezone
+from datetime import timedelta
 
 
 # Vistas para usuarios autenticados (usan base.html)
 @login_required
 def dashboard_view(request):
-    return render(request, 'dashboard.html')
+    # Obtener datos para el dashboard
+    ahora = timezone.now()
+    hoy = ahora.date()
+    ayer = hoy - timedelta(days=1)
+
+    # Personas en centro (ingresos sin egreso)
+    personas_en_centro = RegistroAcceso.objects.filter(
+        fecha_hora_egreso__isnull=True,
+        tipo='INGRESO'
+    ).count()
+
+    # Ingresos hoy
+    ingresos_hoy = RegistroAcceso.objects.filter(
+        fecha_hora_ingreso__date=hoy,
+        tipo='INGRESO'
+    ).count()
+
+    # Ingresos ayer para comparación
+    ingresos_ayer = RegistroAcceso.objects.filter(
+        fecha_hora_ingreso__date=ayer,
+        tipo='INGRESO'
+    ).count()
+
+    # Calcular porcentaje de cambio
+    if ingresos_ayer > 0:
+        cambio_ingresos = ((ingresos_hoy - ingresos_ayer) / ingresos_ayer) * 100
+    else:
+        cambio_ingresos = 0
+
+    # Emergencias activas (no resueltas)
+    emergencias_activas = Emergencia.objects.filter(
+        estado__in=['REPORTADA', 'EN_ATENCION']
+    ).count()
+
+    # Configuración de aforo
+    try:
+        config_aforo = ConfiguracionAforo.objects.filter(activo=True).first()
+        aforo_maximo = config_aforo.aforo_maximo if config_aforo else 2000
+    except:
+        aforo_maximo = 2000
+
+    # Calcular capacidad actual
+    capacidad_porcentaje = (personas_en_centro / aforo_maximo) * 100 if aforo_maximo > 0 else 0
+
+    # Últimas emergencias
+    ultimas_emergencias = Emergencia.objects.select_related('tipo', 'reportada_por').order_by('-fecha_hora_reporte')[:5]
+
+    context = {
+        'personas_en_centro': personas_en_centro,
+        'ingresos_hoy': ingresos_hoy,
+        'cambio_ingresos': cambio_ingresos,
+        'emergencias_activas': emergencias_activas,
+        'capacidad_porcentaje': capacidad_porcentaje,
+        'aforo_maximo': aforo_maximo,
+        'ultimas_emergencias': ultimas_emergencias,
+    }
+
+    return render(request, 'dashboard.html', context)
 
 @login_required
 def control_acceso_view(request):

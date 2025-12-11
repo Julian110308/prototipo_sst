@@ -7,6 +7,7 @@ from django.db.models import Q, Count
 from datetime import datetime, timedelta
 import os
 from .models import ConfiguracionReporte, ReporteGenerado
+from .serializers import ReporteGeneradoSerializer
 from .services import (
     ReporteAforoService,
     ReporteIncidentesService,
@@ -20,6 +21,8 @@ from usuarios.models import Usuario
 class ReporteViewSet(viewsets.ModelViewSet):
 
     # ViewSet para generación de reportes
+    queryset = ReporteGenerado.objects.all()
+    serializer_class = ReporteGeneradoSerializer
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['get'])

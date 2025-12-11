@@ -2,58 +2,58 @@
 {% load static %}
 
 {% block content %}
-<!-- Header Mejorado -->
-<div class="d-flex justify-content-between align-items-center mb-5">
-    <div>
-        <h1 class="h3 fw-bold text-dark mb-1">Dashboard Principal</h1>
-        <p class="text-muted">Resumen en tiempo real del Centro Minero</p>
-    </div>
-    <div class="btn-group">
-        <button class="btn btn-outline-secondary btn-sm active">Hoy</button>
-        <button class="btn btn-outline-secondary btn-sm">Semana</button>
-        <button class="btn btn-outline-secondary btn-sm">Mes</button>
-    </div>
-</div>
+<style>
+/* Colores SENA */
+:root {
+    --sena-blue: #0033A0;
+    --sena-yellow: #FFD100;
+    --sena-green: #28a745;
+    --sena-red: #dc3545;
+    --sena-gray: #6c757d;
+    --sena-light-blue: #e3f2fd;
+    --sena-light-yellow: #fff9c4;
+    --sena-light-green: #e8f5e8;
+}
 
-<!-- Grid de Métricas Mejorado -->
-<div class="row g-4 mb-5">
-    <!-- Personas en Centro -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-modern border-0">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-2">Personas en Centro</h6>
-                        <h3 class="fw-bold text-dark mb-0">0</h3>
-                        <small class="text-success">
-                            <i class="bi bi-arrow-up-short"></i>
-                            <span>0%</span> vs ayer
-                        </small>
-                    </div>
-                    <div class="bg-light-green rounded-3 p-3">
-                        <i class="bi bi-people-fill fs-2 text-primary-green"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+/* Estilos para tarjetas SST */
+.card-sst {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 51, 160, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    <!-- Ingresos Hoy -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-modern border-0">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="text-muted mb-2">Ingresos Hoy</h6>
-                        <h3 class="fw-bold text-dark mb-0">0</h3>
-                        <small class="text-success">
-                            <i class="bi bi-arrow-up-short"></i>
-                            <span>0%</span> promedio
-                        </small>
-                    </div>
-                    <div class="bg-light-green rounded-3 p-3">
-                        <i class="bi bi-door-open fs-2 text-accent-green"></i>
-                    </div>
+.card-sst:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 51, 160, 0.15);
+}
+
+.card-header-sst {
+    background: linear-gradient(135deg, var(--sena-blue), #0056b3);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1.5rem;
+    border: none;
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.metric-icon.safety { background: linear-gradient(135deg, var(--sena-green), #20c997); color: white; }
+.metric-icon.personnel { background: linear-gradient(135deg, var(--sena-blue), #0056b3); color: white; }
+.metric-icon.emergency { background: linear-gradient(135deg, var(--sena-red), #fd7e14); color: white; }
+.metric-icon.equipment { background: linear-gradient(135deg, var(--sena-yellow), #ffc107); color: var(--sena-blue); }
+
+.progress-sst {
+    height: 8px;
+    border-radius: 4px;
                 </div>
             </div>
         </div>
@@ -66,8 +66,10 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <h6 class="text-muted mb-2">Emergencias Activas</h6>
-                        <h3 class="fw-bold text-dark mb-0">0</h3>
-                        <small class="text-success">Todo normal</small>
+                        <h3 class="fw-bold text-dark mb-0">{{ emergencias_activas }}</h3>
+                        <small class="{% if emergencias_activas == 0 %}text-success{% else %}text-warning{% endif %}">
+                            {% if emergencias_activas == 0 %}Todo normal{% else %}Requiere atención{% endif %}
+                        </small>
                     </div>
                     <div class="bg-light-warning rounded-3 p-3">
                         <i class="bi bi-exclamation-triangle fs-2 text-warning"></i>
@@ -84,9 +86,9 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <h6 class="text-muted mb-2">Capacidad del Centro</h6>
-                        <h3 class="fw-bold text-dark mb-0">0%</h3>
+                        <h3 class="fw-bold text-dark mb-0">{{ capacidad_porcentaje|floatformat:1 }}%</h3>
                         <div class="progress progress-modern mt-2">
-                            <div class="progress-bar" style="width: 0%"></div>
+                            <div class="progress-bar" style="width: {{ capacidad_porcentaje }}%"></div>
                         </div>
                     </div>
                     <div class="bg-light-green rounded-3 p-3">
@@ -181,12 +183,40 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for emergencia in ultimas_emergencias %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background-color: {{ emergencia.tipo.color }};">
+                                        {{ emergencia.tipo.nombre }}
+                                    </span>
+                                </td>
+                                <td>{{ emergencia.descripcion_ubicacion|default:"Sin especificar" }}</td>
+                                <td>{{ emergencia.reportada_por.get_full_name|default:emergencia.reportada_por.username }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if emergencia.estado == 'REPORTADA' %}bg-warning
+                                        {% elif emergencia.estado == 'EN_ATENCION' %}bg-info
+                                        {% elif emergencia.estado == 'CONTROLADA' %}bg-primary
+                                        {% elif emergencia.estado == 'RESUELTA' %}bg-success
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ emergencia.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td>{{ emergencia.fecha_hora_reporte|date:"d/m H:i" }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-4">
                                     <i class="bi bi-check-circle fs-1 mb-2 d-block text-success"></i>
                                     No hay emergencias reportadas
                                 </td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

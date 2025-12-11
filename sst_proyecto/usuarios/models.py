@@ -38,6 +38,14 @@ class Usuario(AbstractUser):
     activo = models.BooleanField(default=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     ultima_actualizacion = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_active(self):
+        return self.activo
+
+    @is_active.setter
+    def is_active(self, value):
+        self.activo = value
     
     class Meta:
         verbose_name = 'Usuario'
